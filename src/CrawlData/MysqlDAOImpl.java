@@ -7,7 +7,7 @@ import com.mysql.jdbc.Connection;
 
 public class MysqlDAOImpl implements MysqlDAO {
 
-	public boolean insert(String[] record) {
+	public boolean insertForTA(String[] record) {
 		// TODO Auto-generated method stub
 		Connection conn = MysqlDBUtil.getConnection();
 		String sql = "insert into index_ta(Flag,TransactionTime,ContractId,TAIndex,Buy1Price,"
@@ -62,7 +62,7 @@ public class MysqlDAOImpl implements MysqlDAO {
 		return false;
 	}
 
-	public void insert(String[] record, PreparedStatement prepareStatement) {
+	public void insertForTA(String[] record, PreparedStatement prepareStatement) {
 		// TODO Auto-generated method stub
 
 		for (int i = 0; i < 3; i++) {
@@ -167,6 +167,46 @@ public class MysqlDAOImpl implements MysqlDAO {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
+	}
+	
+	public void insertForQUOTE(String[] record, PreparedStatement preparedStatement) {
+		try {
+			preparedStatement.setString(1, record[0]);
+			preparedStatement.setString(2, record[1]);
+			preparedStatement.setString(3, record[2]);
+			for (int i = 3; i < 9; i++) {
+				preparedStatement.setFloat(i+1, Float.parseFloat(record[i]));
+			}
+			preparedStatement.setInt(10, Integer.parseInt(record[9]));
+			preparedStatement.setInt(11, Integer.parseInt(record[10]));
+			preparedStatement.setFloat(12, Float.parseFloat(record[11]));
+			preparedStatement.setInt(13, Integer.parseInt(record[12]));
+			for (int i = 13; i < 22; i++) {
+				preparedStatement.setFloat(i+1, Float.parseFloat(record[i]));
+			}
+			preparedStatement.setInt(23, Integer.parseInt(record[22]));
+			preparedStatement.setInt(24, Integer.parseInt(record[23]));
+			preparedStatement.setFloat(25, Float.parseFloat(record[24]));
+			preparedStatement.setFloat(26, Float.parseFloat(record[25]));
+			preparedStatement.setInt(27, Integer.parseInt(record[26]));
+			preparedStatement.setInt(28, Integer.parseInt(record[27]));
+			preparedStatement.setFloat(29, Float.parseFloat(record[28]));
+			preparedStatement.setFloat(30, Float.parseFloat(record[29]));
+			preparedStatement.setInt(31, Integer.parseInt(record[30]));
+			preparedStatement.setInt(32, Integer.parseInt(record[31]));
+			preparedStatement.setFloat(33, Float.parseFloat(record[32]));
+			preparedStatement.setFloat(34, Float.parseFloat(record[33]));
+			preparedStatement.setInt(35, Integer.parseInt(record[34]));
+			preparedStatement.setInt(36, Integer.parseInt(record[35]));
+			preparedStatement.setFloat(37, Float.parseFloat(record[36]));
+			preparedStatement.setFloat(38, Float.parseFloat(record[37]));
+			preparedStatement.setInt(39, Integer.parseInt(record[38]));
+			preparedStatement.setInt(40, Integer.parseInt(record[39]));
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 }

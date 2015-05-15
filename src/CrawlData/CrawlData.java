@@ -61,7 +61,7 @@ public class CrawlData {
 						// System.out.println("handled>>>" + record);
 						String[] split = record.split(",");
 						MysqlDAOImpl mysqlDAOImpl = new MysqlDAOImpl();
-						mysqlDAOImpl.insert(split);
+						mysqlDAOImpl.insertForTA(split);
 						for (int i = 0; i < split.length; i++) {
 							// System.out.print(split[i]+split[i].length() +
 							// "  ");
@@ -86,46 +86,77 @@ public class CrawlData {
 	/* 改进的读写操作 */
 	public void readAndWrite(String command) throws SQLException {
 		int count = 0;
-//		String sql = "insert into index_ta(Flag,TransactionTime,ContractId,TAIndex,Buy1Price,"
-//				+ "Buy2Price,Buy3Price,Buy4Price,Buy5Price,Buy1Num,Buy2Num,Buy3Num,Buy4Num,"
-//				+ "Buy5Num,Sell1Price,Sell2Price,Sell3Price,Sell4Price,Sell5Price,Sell1Num,"
-//				+ "Sell2Num,Sell3Num,Sell4Num,Sell5Num,m_dZJSJ,m_dJJSJ,m_dCJJJ,m_dZSP,m_dJSP,"
-//				+ "m_dJKP,m_nZCCL,m_nCCL,m_dZXJ,m_nCJSL,m_dCJJE,m_dZGBJ,m_dZDBJ,m_dZGJ,m_dZDJ,m_dZXSD,m_dJXSD) "
-//				+ "value(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-		String sql = "insert into index_ta_test(Flag,TransactionTime,ContractId,TAIndex,Buy1Price,"
-				+ "Buy2Price,Buy3Price,Buy4Price,Buy5Price,Buy1Num,Buy2Num,Buy3Num,Buy4Num,"
-				+ "Buy5Num,Sell1Price,Sell2Price,Sell3Price,Sell4Price,Sell5Price,Sell1Num,"
-				+ "Sell2Num,Sell3Num,Sell4Num,Sell5Num,m_dZJSJ,m_dJJSJ,m_dCJJJ,m_dZSP,m_dJSP,"
-				+ "m_dJKP,m_nZCCL,m_nCCL,m_dZXJ,m_nCJSL,m_dCJJE,m_dZGBJ,m_dZDBJ,m_dZGJ,m_dZDJ,m_dZXSD,m_dJXSD) "
-				+ "value(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+		// for table index_ta
+		// String sql =
+		// "insert into index_ta(Flag,TransactionTime,ContractId,TAIndex,Buy1Price,"
+		// +
+		// "Buy2Price,Buy3Price,Buy4Price,Buy5Price,Buy1Num,Buy2Num,Buy3Num,Buy4Num,"
+		// +
+		// "Buy5Num,Sell1Price,Sell2Price,Sell3Price,Sell4Price,Sell5Price,Sell1Num,"
+		// +
+		// "Sell2Num,Sell3Num,Sell4Num,Sell5Num,m_dZJSJ,m_dJJSJ,m_dCJJJ,m_dZSP,m_dJSP,"
+		// +
+		// "m_dJKP,m_nZCCL,m_nCCL,m_dZXJ,m_nCJSL,m_dCJJE,m_dZGBJ,m_dZDBJ,m_dZGJ,m_dZDJ,m_dZXSD,m_dJXSD) "
+		// +
+		// "value(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+		// for table market_quotation
+		String sql = "insert ignore into market_quotation(TradingTime,ContractId,ExchangeId,PreSettlementPrice,"
+				+ "CurrSettlementPrice,AveragePrice,PreClosePrice,CurrClosePrice,CurrOpenPrice,PreHoldings,"
+				+ "Holdings,LatestPrice,Volume,TurnOver,TopQuotation,BottomQuotation,TopPrice,BottomPrice,"
+				+ "PreDelta,CurrDelta,BidPrice1,AskPrice1,BidVolume1,AskVolume1,BidPrice2,AskPrice2,BidVolume2,"
+				+ "AskVolume2,BidPrice3,AskPrice3,BidVolume3,AskVolume3,BidPrice4,AskPrice4,BidVolume4,AskVolume4,"
+				+ "BidPrice5,AskPrice5,BidVolume5,AskVolume5) value(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,"
+				+ "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+		// for table index_ta_test
+		// String sql =
+		// "insert into index_ta_test(Flag,TransactionTime,ContractId,TAIndex,Buy1Price,"
+		// +
+		// "Buy2Price,Buy3Price,Buy4Price,Buy5Price,Buy1Num,Buy2Num,Buy3Num,Buy4Num,"
+		// +
+		// "Buy5Num,Sell1Price,Sell2Price,Sell3Price,Sell4Price,Sell5Price,Sell1Num,"
+		// +
+		// "Sell2Num,Sell3Num,Sell4Num,Sell5Num,m_dZJSJ,m_dJJSJ,m_dCJJJ,m_dZSP,m_dJSP,"
+		// +
+		// "m_dJKP,m_nZCCL,m_nCCL,m_dZXJ,m_nCJSL,m_dCJJE,m_dZGBJ,m_dZDBJ,m_dZGJ,m_dZDJ,m_dZXSD,m_dJXSD) "
+		// +
+		// "value(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		Connection conn = MysqlDBUtil.getConnection();
 		PreparedStatement prepareStatement = conn.prepareStatement(sql);
 		InputStreamReader inputStreamReader = new InputStreamReader(in);
 		BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+		
+		String deleteTableSql = "delete from market_quotation";
+//		prepareStatement.execute(deleteTableSql);
+		
 		try {
 			while (bufferedReader.readLine() != null) {
 				conn.setAutoCommit(false);
 				String record = bufferedReader.readLine().toString().trim();
-				if (record.contains("IF") || record.contains("SH")
-						|| record.contains("SZ")) {
-					// System.out.println("while....");
-					count++;
-					String[] split = record.split(",");
-					daoImpl.insert(split, prepareStatement);
-					prepareStatement.addBatch();
-					// System.out.println("addBatch");
-					if (count % 500 == 0) {
-						prepareStatement.executeBatch();
-						conn.commit();
-						prepareStatement.close();
-						conn.close();
-						conn = MysqlDBUtil.getConnection();
-						conn.setAutoCommit(false);
-						prepareStatement = conn.prepareStatement(sql);
-						System.out.println("insert 500 records");
-					}
-					System.out.println("count >>> " + count);
+				System.out.println(record);
+				record = record.substring(6);
+				System.out.println(record);
+				// if (record.contains("IF") || record.contains("SH")
+				// || record.contains("SZ")) {
+				count++;
+				String[] split = record.split(",");
+//				daoImpl.insertForTA(split, prepareStatement); // for TA
+				daoImpl.insertForQUOTE(split, prepareStatement);
+				prepareStatement.addBatch();
+				// System.out.println("addBatch");
+				if (count % 500 == 0) {
+					prepareStatement.executeBatch();
+					conn.commit();
+					prepareStatement.close();
+					conn.close();
+					conn = MysqlDBUtil.getConnection();
+					conn.setAutoCommit(false);
+					prepareStatement = conn.prepareStatement(sql);
+					System.out.println("insert 500 records");
 				}
+				System.out.println("count >>> " + count);
+				// }
 			}
 			if (count % 500 != 0) {
 				prepareStatement.executeBatch();
@@ -148,7 +179,7 @@ public class CrawlData {
 		try {
 			out.println(value);
 			out.flush();
-			System.out.println(">>>write");
+			System.out.println(">>>write command" + value);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -200,17 +231,11 @@ public class CrawlData {
 			byte[] bytes = new byte[256];
 			System.out.println(telnet.in.read(bytes));
 			System.out.println(new String(bytes));
-			// telnet.sendCommand("export LANG=en");
-			// String r1 = telnet.sendCommand("cd /home/project/");
-			telnet.sendCommand("STA");
-			telnet.sendCommand("UTA");
+			telnet.sendCommand("SQUOTE");
+			telnet.sendCommand("UQUOTE");
 			telnet.sendCommand("QUIT");
-			// String r3 = telnet.sendCommand("sh a.sh");
 
 			System.out.println("显示结果");
-			// System.out.println(r1);
-			// System.out.println(r2);
-			// System.out.println(r3);
 			telnet.disconnect();
 		} catch (Exception e) {
 			e.printStackTrace();
